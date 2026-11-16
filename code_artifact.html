@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Наш Альбом — Начало отношений 💘</title>
+    <!-- Подключение Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Подключение милых шрифтов Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <!-- Иконки Lucide / FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Nunito', 'sans-serif'],
+                        hand: ['Caveat', 'cursive'],
+                    },
+                    colors: {
+                        cream: '#FFF9F5',
+                        blush: '#FFE8EE',
+                        roseSoft: '#FFCCD8',
+                        roseAccent: '#FF6B95',
+                        roseDark: '#D9436B',
+                        tgBg: '#17212B',
+                        tgIncoming: '#182533',
+                        tgOutgoing: '#2B5278',
+                        tgReply: '#243447',
+                    },
+                    boxShadow: {
+                        'scrapbook': '0 15px 35px -5px rgba(217, 67, 107, 0.14), 0 8px 15px -6px rgba(217, 67, 107, 0.08)',
+                        'polaroid': '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 4px 10px -2px rgba(0, 0, 0, 0.04)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #FFF9F5;
+            background-image: 
+                radial-gradient(#FFD6E0 1.2px, transparent 1.2px),
+                radial-gradient(#FFE8EE 1.2px, #FFF9F5 1.2px);
+            background-size: 36px 36px;
+            background-position: 0 0, 18px 18px;
+            overflow-x: hidden;
+        }
+
+        /* Декоративный скотч на карточках альбома */
+        .washi-tape {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            width: 110px;
+            height: 26px;
+            background: rgba(255, 182, 203, 0.65);
+            backdrop-filter: blur(2px);
+            border-left: 2px dashed rgba(255, 255, 255, 0.6);
+            border-right: 2px dashed rgba(255, 255, 255, 0.6);
+            box-shadow: 0 2px 6px rgba(217, 67, 107, 0.1);
+            z-index: 10;
+        }
+
+        /* Анимация плавного появления страницы */
+        @keyframes pageFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(14px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .page-animate {
+            animation: pageFadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* Фоновые парящие сердечки */
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.45;
+            }
+            85% {
+                opacity: 0.45;
+            }
+            100% {
+                transform: translateY(-15vh) rotate(360deg) scale(1.1);
+                opacity: 0;
+            }
+        }
+
+        .bg-heart {
+            position: fixed;
+            bottom: -40px;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatUp linear infinite;
+        }
+
+        /* Анимация взрыва сердечек по клику */
+        @keyframes burstHeart {
+            0% {
+                transform: translate(-50%, -50%) scale(0.4);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1.3) rotate(var(--rot));
+                opacity: 0;
+            }
+        }
+
+        .burst-particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            font-size: 22px;
+            animation: burstHeart 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* Стилизация скроллбара */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFF9F5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FFB6C9;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FF6B95;
+        }
+    </style>
+</head>
+<body class="text-slate-700 min-h-screen flex flex-col justify-between relative selection:bg-rose-200 selection:text-rose-900">
+
+    <!-- Контейнер для фоновых плавающих сердечек -->
+    <div id="floating-hearts-bg" aria-hidden="true"></div>
+
+    <!-- Верхняя панель навигации / Шапка альбома -->
+    <header class="relative z-10 w-full max-w-4xl mx-auto pt-6 pb-3 px-4 sm:px-6">
+        <div class="bg-white/80 backdrop-blur-md border border-rose-100 rounded-3xl p-4 sm:px-6 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-3 text-center sm:text-left">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-white text-xl shadow-md shrink-0">
+                    💘
+                </div>
+                <div>
+                    <h1 class="font-hand text-2xl sm:text-3xl font-bold text-rose-600 leading-none">
+                        Наша маленькая история
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 font-semibold mt-0.5">
+                        сварщик &amp; любимая • памятный альбом
+                    </p>
+                </div>
+            </div>
+
+            <!-- Переключатель режима просмотра и кнопка поцелуйчика -->
+            <div class="flex items-center gap-2 flex-wrap justify-center">
+                <button id="toggle-mode-btn" onclick="toggleViewMode()" class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span id="mode-btn-text">Показать все сразу</span>
+                </button>
+                <button onclick="spawnHeartBurst(event)" class="px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white shadow-sm hover:shadow transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                    <span>Чмок!</span>
+                    <span>💋</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Прогресс-бар страниц (виден в режиме листания) -->
+        <div id="progress-wrapper" class="mt-4 px-2">
+            <div class="flex items-center justify-between text-xs font-bold text-rose-500 mb-1.5">
+                <span id="page-indicator">Страница 1 из 9</span>
+                <span id="chapter-badge" class="bg-rose-100/80 px-2.5 py-0.5 rounded-full">Самое начало ✨</span>
+            </div>
+            <div class="w-full h-2.5 bg-rose-100 rounded-full overflow-hidden p-0.5">
+                <div id="progress-bar" class="h-full bg-gradient-to-r from-rose-400 to-pink-500 rounded-full transition-all duration-500" style="width: 11.1%"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основная область альбома -->
+    <main class="relative z-10 flex-grow w-full max-w-3xl mx-auto px-4 sm:px-6 py-4 flex flex-col justify-center">
+        <!-- Контейнер для карточек -->
+        <div id="album-container" class="w-full"></div>
+
+        <!-- Кнопки перелистывания (только в постраничном режиме) -->
+        <div id="pagination-controls" class="mt-6 flex items-center justify-between gap-4">
+            <button id="prev-btn" onclick="prevPage()" class="flex-1 sm:flex-none px-5 py-3 rounded-2xl bg-white hover:bg-rose-50 text-rose-600 font-bold border border-rose-200 shadow-sm disabled:opacity-40 disabled:pointer-events-none transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Назад</span>
+            </button>
+
+            <!-- Мини-точки навигации -->
+            <div id="dots-container" class="hidden sm:flex items-center gap-1.5"></div>
+
+            <button id="next-btn" onclick="nextPage()" class="flex-1 sm:flex-none px-6 py-3 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold shadow-md hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                <span id="next-btn-text">Дальше</span>
+                <i id="next-btn-icon" class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Подвал страницы с милой пасхалкой в углу -->
+    <footer class="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 pt-6 pb-4 mt-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-rose-400/80 border-t border-rose-100 pt-3">
+            <div class="font-semibold flex items-center gap-1.5">
+                <span>Сделано с любовью</span>
+                <span class="text-rose-500 animate-pulse">❤️</span>
+                <span>специально для моей бусинки</span>
+            </div>
+            <!-- Пасхалка мелким шрифтом в углу -->
+            <div class="text-[11px] text-rose-400/75 italic font-medium sm:text-right select-all">
+                твой любимый соус кстате сладкий чили 🌶️✨
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Данные всех страниц альбома (8 моментов + финальная открытка)
+        const albumPages = [
+            {
+                id: 1,
+                badge: "Глава 1 • 00:05 — 00:06",
+                title: "То самое «Можно я буду твоей девушкой?»",
+                sticker: "💘",
+                dateTag: "Начало всех начал",
+                messages: [
+                    {
+                        sender: "her",
+                        replyTo: { name: "сварщик", text: "я тоше очень этава х...", color: "text-pink-400 border-pink-400" },
+                        text: "зайчик",
+                        time: "0:05"
+                    },
+                    { sender: "her", text: "можно я", time: "0:06" },
+                    { sender: "her", text: "буду", time: "0:06" },
+                    { sender: "her", text: "твоей", time: "0:06" },
+                    {
+                        sender: "her",
+                        replyTo: { name: "любимая💘", text: "твоей", color: "text-amber-400 border-amber-400" },
+                        text: "девушкой 📌",
+                        time: "0:06"
+                    },
+                    { sender: "her", text: "хыхыхы", time: "0:06" }
+                ],
+                note: "Самый трепетный и милый момент. С этого простого «хыхыхы» и пары сообщений в полночь всё и закрутилось. Сердечко тогда стучало как бешеное!"
+            },
+            {
+                id: 2,
+                badge: "Глава 2 • 00:34 — 00:35",
+                title: "Первые условия и правила",
+                sticker: "📋",
+                dateTag: "Важный договор",
+                messages: [
+                    { sender: "her", text: "кароче", time: "0:34" },
+                    {
+                        sender: "her",
+                        text: "подведем итоги, гуляешь записываешь мне видосы И ТЕЛЕЫОН ОБЯЗАТЕЛЬНО БЕРИ, када домой идешь или наоборот когда гулять идешь звонишь мнееееее, хммммм, фотачки кидаешь чащееее и хззз у мне не будет плавил или границ",
+                        time: "0:35"
+                    }
+                ],
+                note: "Спустя полчаса после начала отношений уже появился первый свод законов: видосы, звонки, фотачки и обязательный телефон. Обожаю твою милую заботу и то, как тебе важно всегда быть на связи!"
+            },
+            {
+                id: 3,
+                badge: "Глава 3 • 17:16 — 17:17",
+                title: "Первая жалоба",
+                sticker: "🥺",
+                dateTag: "Полное доверие",
+                messages: [
+                    { sender: "her", text: "фу папа начал", time: "17:16" },
+                    { sender: "her", text: "матюкать нас всех", time: "17:17" },
+                    { sender: "her", text: "мне аж детство вспомнилось.", time: "17:17" }
+                ],
+                note: "Так ценно, когда ты можешь прийти и просто пожаловаться на всё, что происходит вокруг. Я всегда рядом, чтобы выслушать, обнять и поддержать тебя в любую минуту."
+            },
+            {
+                id: 4,
+                badge: "Глава 4 • 19:37",
+                title: "Первое «разлюбишь»",
+                sticker: "🙈",
+                dateTag: "Проверка чувств",
+                messages: [
+                    { sender: "her", text: "Фу ты меня разлюбишь", time: "19:37" }
+                ],
+                note: "Классическая, но безумно милая проверка на прочность! Спойлер на всю жизнь: никогда не разлюблю, даже не надейся, моя вредная бусинка."
+            },
+            {
+                id: 5,
+                badge: "Глава 5 • 20:12 — 20:13",
+                title: "Первые сплетни и обзывание других",
+                sticker: "😈",
+                dateTag: "Идеальная команда",
+                messages: [
+                    { sender: "her", text: "Мразь", time: "20:12" },
+                    { sender: "me", text: "тварь", time: "20:12" },
+                    { sender: "her", text: "хуесос", time: "20:12" },
+                    { sender: "me", text: "пидорас", time: "20:12" },
+                    { sender: "her", text: "уебок", time: "20:12" },
+                    { sender: "me", text: "чмошник", time: "20:12" },
+                    { sender: "her", text: "гниль", time: "20:12" },
+                    { sender: "me", text: "фарш", time: "20:12" },
+                    { sender: "her", text: "гавнаед", time: "20:12" },
+                    { sender: "me", text: "ебырь", time: "20:13" },
+                    { sender: "her", text: "сосунец", time: "20:13" },
+                    { sender: "me", text: "холодец", time: "20:13" }
+                ],
+                note: "Вот что значит настоящая синхронность и командная работа! Когда мы на одной волне, нам даже слова не нужно подбирать — мы понимаем друг друга с полуслова."
+            },
+            {
+                id: 6,
+                badge: "Глава 6 • 20:28",
+                title: "Первое недовольство",
+                sticker: "💞",
+                dateTag: "Умение слышать",
+                messages: [
+                    { sender: "me", text: "мне немножка не нравится шо ты ему кидаешь шота", time: "20:28" },
+                    { sender: "her", text: "хорошо я не буду", reaction: "💘", time: "20:28" },
+                    { sender: "her", text: "и так редко кидаю", time: "20:28" }
+                ],
+                note: "Никаких ссор и скандалов — просто сказали друг другу честно, что на душе, и сразу поняли друг друга. Беречь чувства друг друга — это самое главное."
+            },
+            {
+                id: 7,
+                badge: "Глава 7 • 21:52",
+                title: "Первые крики на меня",
+                sticker: "😤",
+                dateTag: "Капс-режим",
+                messages: [
+                    { sender: "her", text: "да", time: "21:52" },
+                    {
+                        sender: "her",
+                        replyTo: { name: "сварщик", text: "энтер нажми", color: "text-pink-400 border-pink-400" },
+                        text: "ТА ВСЕ",
+                        time: "21:52"
+                    },
+                    { sender: "her", text: "НОРМАЛЬНО", time: "21:52" }
+                ],
+                note: "Даже когда ты немного закипаешь и начинаешь кричать на меня капсом, для меня это всё равно выглядит невероятно мило и смешно!"
+            },
+            {
+                id: 8,
+                badge: "Глава 8 • 09:57",
+                title: "Первое «утречко»",
+                sticker: "☀️",
+                dateTag: "Доброе утро",
+                messages: [
+                    { sender: "her", text: "утречкооо", time: "9:57" },
+                    { sender: "her", text: "любимый мой", time: "9:57" }
+                ],
+                note: "Самое сладкое пробуждение! Просыпаться и видеть от тебя «утречкооо любимый мой» — лучшее начало любого дня."
+            },
+            {
+                id: 9,
+                badge: "Финал • Наше сегодня и завтра",
+                title: "Моей самой любимой девочке",
+                sticker: "💌",
+                isFinal: true
+            }
+        ];
+
+        let currentPageIndex = 0;
+        let isShowAllMode = false;
+
+        // Генерация фоновых плавающих сердечек
+        function initFloatingHearts() {
+            const container = document.getElementById('floating-hearts-bg');
+            const icons = ['💗', '💖', '💕', '🌸', '✨', '💓'];
+            for (let i = 0; i < 16; i++) {
+                const el = document.createElement('div');
+                el.className = 'bg-heart';
+                el.textContent = icons[i % icons.length];
+                el.style.left = Math.random() * 96 + 'vw';
+                el.style.fontSize = (14 + Math.random() * 14) + 'px';
+                el.style.animationDuration = (12 + Math.random() * 14) + 's';
+                el.style.animationDelay = (-Math.random() * 20) + 's';
+                container.appendChild(el);
+            }
+        }
+
+        // Эффект салюта из сердечек по нажатию
+        function spawnHeartBurst(event) {
+            const hearts = ['💖', '💘', '💋', '❤️', '🥰', '💕'];
+            const x = event ? event.clientX : window.innerWidth / 2;
+            const y = event ? event.clientY : window.innerHeight / 2;
+
+            for (let i = 0; i < 14; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'burst-particle';
+                particle.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+
+                const angle = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.4;
+                const dist = 60 + Math.random() * 110;
+                const tx = Math.cos(angle) * dist + 'px';
+                const ty = (Math.sin(angle) * dist - 40) + 'px';
+                const rot = (Math.random() - 0.5) * 90 + 'deg';
+
+                particle.style.setProperty('--tx', tx);
+                particle.style.setProperty('--ty', ty);
+                particle.style.setProperty('--rot', rot);
+
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 1150);
+            }
+        }
+
+        // Рендер пузырьков переписки в стиле Telegram
+        function renderChatMessages(messages) {
+            return `
+                <div class="bg-[#0E1621] rounded-2xl p-3.5 sm:p-5 shadow-inner border border-slate-800/80 space-y-2 max-h-[340px] overflow-y-auto relative">
+                    <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/90 text-[11px] text-slate-400">
+                        <span class="flex items-center gap-1.5 font-semibold text-rose-300">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                            любимая 💘
+                        </span>
+                        <span>архив переписки</span>
+                    </div>
+                    ${messages.map(msg => {
+                        const isMe = msg.sender === 'me';
+                        const alignClass = isMe ? 'justify-end' : 'justify-start';
+                        const bubbleColor = isMe ? 'bg-[#2B5278] text-white rounded-2xl rounded-br-sm' : 'bg-[#182533] text-slate-100 rounded-2xl rounded-bl-sm';
+                        
+                        const replyHtml = msg.replyTo ? `
+                            <div class="mb-1.5 pl-2.5 py-1 pr-2 rounded-lg bg-black/25 border-l-2 ${msg.replyTo.color} text-xs">
+                                <div class="font-bold leading-tight">${msg.replyTo.name}</div>
+                                <div class="text-slate-300 truncate">${msg.replyTo.text}</div>
+                            </div>
+                        ` : '';
+
+                        const reactionHtml = msg.reaction ? `
+                            <div class="mt-1 inline-flex items-center gap-1 bg-[#2B5278]/90 px-2 py-0.5 rounded-full text-xs border border-blue-400/30">
+                                <span>${msg.reaction}</span>
+                                <span class="w-3.5 h-3.5 rounded-full bg-rose-400 text-[9px] flex items-center justify-center text-white font-bold">Я</span>
+                            </div>
+                        ` : '';
+
+                        return `
+                            <div class="flex ${alignClass}">
+                                <div class="${bubbleColor} px-3.5 py-2 max-w-[85%] sm:max-w-[78%] shadow-sm text-sm sm:text-[15px] leading-snug">
+                                    ${replyHtml}
+                                    <div class="flex flex-wrap items-end gap-x-2 gap-y-0.5">
+                                        <span class="break-words">${msg.text}</span>
+                                        <span class="text-[10px] ${isMe ? 'text-blue-200/70' : 'text-slate-400'} ml-auto shrink-0 select-none">
+                                            ${msg.time} ${isMe ? '✓✓' : ''}
+                                        </span>
+                                    </div>
+                                    ${reactionHtml}
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Рендер одной карточки-страницы альбома
+        function renderCardHTML(page) {
+            if (page.isFinal) {
+                return `
+                    <article class="page-animate relative bg-gradient-to-br from-white via-rose-50/90 to-pink-100/70 rounded-3xl p-6 sm:p-10 shadow-scrapbook border-2 border-rose-200/80 text-center">
+                        <div class="washi-tape"></div>
+
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rose-100 text-3xl mb-4 shadow-inner">
+                            💌
+                        </div>
+
+                        <div class="text-xs font-extrabold uppercase tracking-wider text-rose-400 mb-1">
+                            ${page.badge}
+                        </div>
+
+                        <h2 class="font-hand text-3xl sm:text-5xl font-bold text-rose-600 mb-5">
+                            ${page.title}
+                        </h2>
+
+                        <!-- Главная открытка-признание -->
+                        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-5 sm:p-8 border border-rose-200 shadow-sm relative mx-auto max-w-xl">
+                            <span class="absolute -top-3 -left-2 text-2xl rotate-[-12deg]">🌸</span>
+                            <span class="absolute -bottom-3 -right-2 text-2xl rotate-[12deg]">💖</span>
+
+                            <p class="font-hand text-2xl sm:text-4xl font-bold text-rose-600 leading-relaxed mb-4">
+                                «я очень сина тебя люблю моя бусинка, спасибо тебе за все время сколько ты была со мной»
+                            </p>
+
+                            <div class="w-16 h-1 bg-rose-200 rounded-full mx-auto my-4"></div>
+
+                            <p class="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
+                                Это только самые первые странички нашего большого альбома. Впереди у нас ещё миллион таких тёплых «утречек», смешных переписок, долгих звонков, дурацких шуток и самых счастливых моментов вместе. Спасибо, что ты есть у меня — моё самое главное чудо! 🥰
+                            </p>
+                        </div>
+
+                        <div class="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
+                            <button onclick="spawnHeartBurst(event)" class="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold text-base shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                                <span>Обнять и зацеловать</span>
+                                <span>💘</span>
+                            </button>
+                            <button onclick="goToPage(0)" class="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-white hover:bg-rose-50 text-rose-500 font-bold text-sm border border-rose-200 transition-all active:scale-95 cursor-pointer">
+                                Перечитать сначала ↺
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }
+
+            return `
+                <article class="page-animate relative bg-white rounded-3xl p-5 sm:p-8 shadow-scrapbook border border-rose-100">
+                    <div class="washi-tape"></div>
+
+                    <!-- Шапка карточки -->
+                    <div class="flex items-start justify-between gap-3 mb-4 pt-1">
+                        <div>
+                            <div class="inline-flex items-center gap-1.5 text-xs font-extrabold text-rose-500 bg-rose-50 px-3 py-1 rounded-full border border-rose-100 mb-2">
+                                <span>${page.badge}</span>
+                                <span>•</span>
+                                <span class="text-rose-400">${page.dateTag}</span>
+                            </div>
+                            <h2 class="font-hand text-2xl sm:text-4xl font-bold text-slate-800 leading-tight">
+                                ${page.title}
+                            </h2>
+                        </div>
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-2xl sm:text-3xl shrink-0 shadow-sm rotate-3">
+                            ${page.sticker}
+                        </div>
+                    </div>
+
+                    <!-- Скрин-переписка -->
+                    ${renderChatMessages(page.messages)}
+
+                    <!-- Тёплая заметка под воспоминанием -->
+                    <div class="mt-5 bg-cream rounded-2xl p-4 border border-rose-100/80 flex items-start gap-3">
+                        <span class="text-xl mt-0.5 shrink-0">✍️</span>
+                        <p class="text-sm sm:text-[15px] text-slate-600 leading-relaxed font-medium">
+                            ${page.note}
+                        </p>
+                    </div>
+                </article>
+            `;
+        }
+
+        // Обновление интерфейса альбома
+        function renderAlbum() {
+            const container = document.getElementById('album-container');
+            const paginationControls = document.getElementById('pagination-controls');
+            const progressWrapper = document.getElementById('progress-wrapper');
+
+            if (isShowAllMode) {
+                paginationControls.classList.add('hidden');
+                progressWrapper.classList.add('hidden');
+                container.className = 'w-full space-y-10 py-2';
+                container.innerHTML = albumPages.map(page => renderCardHTML(page)).join('');
+            } else {
+                paginationControls.classList.remove('hidden');
+                progressWrapper.classList.remove('hidden');
+                container.className = 'w-full';
+
+                const page = albumPages[currentPageIndex];
+                container.innerHTML = renderCardHTML(page);
+
+                // Обновление индикаторов прогресса
+                const total = albumPages.length;
+                document.getElementById('page-indicator').textContent = `Страница ${currentPageIndex + 1} из ${total}`;
+                document.getElementById('chapter-badge').textContent = page.dateTag || "Финал 💌";
+                document.getElementById('progress-bar').style.width = `${((currentPageIndex + 1) / total) * 100}%`;
+
+                // Кнопки Назад / Дальше
+                const prevBtn = document.getElementById('prev-btn');
+                const nextBtn = document.getElementById('next-btn');
+                const nextBtnText = document.getElementById('next-btn-text');
+                const nextBtnIcon = document.getElementById('next-btn-icon');
+
+                prevBtn.disabled = currentPageIndex === 0;
+
+                if (currentPageIndex === total - 1) {
+                    nextBtnText.textContent = 'В начало';
+                    nextBtnIcon.className = 'fa-solid fa-rotate-left';
+                } else if (currentPageIndex === total - 2) {
+                    nextBtnText.textContent = 'Открытка 💌';
+                    nextBtnIcon.className = 'fa-solid fa-heart';
+                } else {
+                    nextBtnText.textContent = 'Дальше';
+                    nextBtnIcon.className = 'fa-solid fa-arrow-right';
+                }
+
+                // Точки навигации
+                const dotsContainer = document.getElementById('dots-container');
+                dotsContainer.innerHTML = albumPages.map((_, idx) => {
+                    const active = idx === currentPageIndex;
+                    return `
+                        <button onclick="goToPage(${idx})" aria-label="Страница ${idx + 1}" class="h-2.5 rounded-full transition-all cursor-pointer ${active ? 'w-7 bg-rose-500' : 'w-2.5 bg-rose-200 hover:bg-rose-300'}"></button>
+                    `;
+                }).join('');
+            }
+        }
+
+        function nextPage() {
+            if (currentPageIndex < albumPages.length - 1) {
+                currentPageIndex++;
+            } else {
+                currentPageIndex = 0;
+            }
+            renderAlbum();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function prevPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                renderAlbum();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function goToPage(index) {
+            currentPageIndex = index;
+            renderAlbum();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleViewMode() {
+            isShowAllMode = !isShowAllMode;
+            const btnText = document.getElementById('mode-btn-text');
+            btnText.textContent = isShowAllMode ? 'Листать по страницам' : 'Показать все сразу';
+            renderAlbum();
+        }
+
+        // Поддержка стрелок клавиатуры для удобного перелистывания
+        document.addEventListener('keydown', (e) => {
+            if (isShowAllMode) return;
+            if (e.key === 'ArrowRight') nextPage();
+            if (e.key === 'ArrowLeft') prevPage();
+        });
+
+        // Инициализация при загрузке
+        window.onload = function() {
+            initFloatingHearts();
+            renderAlbum();
+        };
+    </script>
+</body>
+</html>
